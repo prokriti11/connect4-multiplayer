@@ -5,7 +5,7 @@
 
 // Configuration
 const CONFIG = {
-    WS_URL: `ws://${window.location.host}/ws`,
+    WS_URL: `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/ws`,
     LEADERBOARD_URL: '/leaderboard',
     RECONNECT_DELAY: 2000,
     MAX_RECONNECT_ATTEMPTS: 5
