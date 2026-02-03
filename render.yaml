@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: connect4-server
+    env: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    envVars:
+      - key: PORT
+        value: 8080
+      - key: DATABASE_URL
+        fromDatabase:
+          name: connect4-db
+          property: connectionString
+
+databases:
+  - name: connect4-db
+    plan: free
+    databaseName: connect4

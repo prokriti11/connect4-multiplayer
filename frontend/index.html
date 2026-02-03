@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connect 4 - Multiplayer</title>
+    <meta name="description" content="Real-time multiplayer Connect 4 game with competitive AI bot">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔴 Connect 4 🟡</h1>
+            <p class="subtitle">Real-Time Multiplayer</p>
+        </header>
+
+        <!-- Login Screen -->
+        <div id="login-screen" class="screen active">
+            <div class="card">
+                <h2>Enter the Arena</h2>
+                <div class="input-group">
+                    <input type="text" id="username-input" placeholder="Your username" maxlength="20" autocomplete="off">
+                    <button id="play-btn" class="btn primary">
+                        <span>Play Now</span>
+                        <span class="icon">▶</span>
+                    </button>
+                </div>
+                <p class="hint">You'll be matched with another player or a competitive bot</p>
+            </div>
+
+            <div class="leaderboard-section">
+                <h3>🏆 Leaderboard</h3>
+                <div id="leaderboard-login" class="leaderboard">
+                    <p class="loading">Loading...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Matchmaking Screen -->
+        <div id="matchmaking-screen" class="screen">
+            <div class="card">
+                <div class="spinner"></div>
+                <h2>Finding Opponent...</h2>
+                <p id="matchmaking-status">Waiting for another player</p>
+                <div class="countdown">
+                    <span id="countdown-timer">10</span>
+                    <span>seconds until bot match</span>
+                </div>
+                <button id="cancel-btn" class="btn secondary">Cancel</button>
+            </div>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="game-screen" class="screen">
+            <div class="game-header">
+                <div class="player-info player1">
+                    <span class="disc red"></span>
+                    <span id="player1-name">Player 1</span>
+                </div>
+                <div id="game-status" class="status">Your turn</div>
+                <div class="player-info player2">
+                    <span id="player2-name">Player 2</span>
+                    <span class="disc yellow"></span>
+                </div>
+            </div>
+
+            <div id="board-container">
+                <div id="game-board"></div>
+                <div id="column-indicators"></div>
+            </div>
+
+            <div id="game-over-banner" class="hidden">
+                <h2 id="winner-text">Game Over</h2>
+                <button id="play-again-btn" class="btn primary">Play Again</button>
+            </div>
+
+            <div id="disconnect-banner" class="hidden">
+                <p>⚠️ Opponent disconnected</p>
+                <span id="reconnect-timer">30s remaining</span>
+            </div>
+        </div>
+
+        <!-- Leaderboard Screen -->
+        <div id="leaderboard-screen" class="screen">
+            <div class="card">
+                <h2>🏆 Leaderboard</h2>
+                <div id="leaderboard-full" class="leaderboard"></div>
+                <button id="back-btn" class="btn secondary">Back to Game</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
