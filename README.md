@@ -1,145 +1,148 @@
-# Connect 4 - Real-Time Multiplayer Game
+# Connect 4 - Real-Time Multiplayer
 
-A production-grade Connect 4 game server built with Go, featuring WebSocket multiplayer, competitive AI bot, and persistent leaderboard.
+A fast, real-time Connect 4 game built with Go and WebSockets. Play against other players online or challenge the bot.
 
-## Features
+## What's Inside
 
-- **Real-Time Multiplayer**: WebSocket-based gameplay with instant state synchronization
-- **Competitive AI Bot**: Minimax algorithm with alpha-beta pruning (depth 6)
-- **Smart Matchmaking**: 10-second queue with automatic bot fallback
-- **Reconnection Support**: 30-second grace period for disconnected players
-- **Persistent Leaderboard**: PostgreSQL storage with in-memory fallback
-- **Modern Frontend**: Dark theme UI with animations
+- **WebSocket Multiplayer** - Play with anyone, anywhere in real-time
+- **AI Opponent** - Minimax bot that thinks 6 moves ahead
+- **Quick Matchmaking** - Find a match in 10 seconds or play the bot
+- **Reconnection** - Lost connection? You have 30 seconds to rejoin
+- **Leaderboard** - Track your wins and compete with others
+- **Clean UI** - Dark theme with smooth animations
 
-## Architecture
-
-```
+## Project Structure
 Connect4/
-├── cmd/server/           # Entry point
+├── cmd/server/           # Main entry point
 ├── internal/
-│   ├── game/             # Core game engine
-│   │   ├── types.go      # Type definitions
-│   │   ├── board.go      # Grid & gravity logic
-│   │   ├── rules.go      # Win detection
-│   │   ├── engine.go     # Turn management
-│   │   └── bot.go        # Minimax AI
-│   ├── matchmaking/      # Player queue
-│   ├── websocket/        # Real-time communication
-│   ├── state/            # Active game storage
-│   ├── storage/          # PostgreSQL persistence
-│   ├── leaderboard/      # Leaderboard service
-│   └── analytics/        # Kafka event producer (optional)
-├── config/               # Configuration
-└── frontend/             # Web UI
-```
+│   ├── game/             # Game logic and AI
+│   ├── matchmaking/      # Player queue system
+│   ├── websocket/        # WebSocket handler
+│   ├── state/            # Game state manager
+│   ├── storage/          # PostgreSQL integration
+│   ├── leaderboard/      # Stats tracking
+│   └── analytics/        # Event logging
+├── config/               # Server config
+└── frontend/             # HTML/CSS/JS UI
 
-## Quick Start
+## Getting Started
 
-### Prerequisites
+**Requirements:**
+- Go 1.21 or higher
+- PostgreSQL (optional)
 
-- Go 1.21+
-- PostgreSQL (optional, for persistence)
-
-### Run Locally
-
+**Run it:**
 ```bash
 cd Connect4
-
-# Download dependencies
 go mod tidy
-
-# Run the server
 go run ./cmd/server
-
-# Server starts at http://localhost:8080
 ```
 
-### With Docker
+Open `http://localhost:8080` and start playing.
 
+**With Docker:**
 ```bash
-# Build image
 docker build -t connect4 .
-
-# Run container
 docker run -p 8080:8080 connect4
 ```
 
-### With PostgreSQL
-
+**With Database:**
 ```bash
-# Set database URL
 export DATABASE_URL="postgres://user:pass@localhost:5432/connect4?sslmode=disable"
-
-# Run server
 go run ./cmd/server
 ```
 
-## Environment Variables
+## Configuration
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `PORT` | `8080` | Server port |
-| `DATABASE_URL` | - | PostgreSQL connection string |
-| `MATCH_TIMEOUT` | `10` | Seconds before bot match |
-| `RECONNECT_WINDOW` | `30` | Seconds for reconnection |
-| `KAFKA_BROKERS` | - | Kafka broker addresses (optional) |
+| Variable | Default | What it does |
+|----------|---------|--------------|
+| `PORT` | 8080 | Server port |
+| `DATABASE_URL` | - | PostgreSQL connection |
+| `MATCH_TIMEOUT` | 10 | Seconds before bot match |
+| `RECONNECT_WINDOW` | 30 | Reconnection time limit |
+| `KAFKA_BROKERS` | - | Event streaming (optional) |
 
-## API Endpoints
+## How to Play
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/ws` | WebSocket | Game communication |
-| `/leaderboard` | GET | Top 10 players |
-| `/health` | GET | Health check |
-| `/` | GET | Frontend UI |
+1. Enter your username
+2. Click "Find Match"
+3. Wait for an opponent (or get matched with the bot)
+4. Drop your pieces by clicking columns
+5. Connect four in a row to win!
 
-## WebSocket Protocol
+## API Reference
 
-### Client → Server
+**HTTP Endpoints:**
+- `GET /` - Game interface
+- `GET /leaderboard` - Top 10 players
+- `GET /health` - Server status
+- `WebSocket /ws` - Game connection
 
+**WebSocket Messages:**
+
+Join matchmaking:
 ```json
-// Join matchmaking
 {"type": "join_queue", "payload": {"username": "player1"}}
-
-// Make a move
-{"type": "move", "payload": {"game_id": "...", "column": 3}}
 ```
 
-### Server → Client
-
+Make a move:
 ```json
-// Game started
-{"type": "game_start", "payload": {"game_id": "...", "opponent_name": "...", "is_bot": false, "symbol": 1, "your_turn": true}}
-
-// Game state update
-{"type": "game_state", "payload": {"board": [[...]], "turn": 1, "winner": 0, "status": "active"}}
-
-// Error
-{"type": "error", "payload": {"message": "Not your turn"}}
+{"type": "move", "payload": {"game_id": "abc123", "column": 3}}
 ```
 
-## Bot Algorithm
+Game started:
+```json
+{
+  "type": "game_start",
+  "payload": {
+    "game_id": "abc123",
+    "opponent_name": "player2",
+    "is_bot": false,
+    "symbol": 1,
+    "your_turn": true
+  }
+}
+```
+
+Board update:
+```json
+{
+  "type": "game_state",
+  "payload": {
+    "board": [[0,0,0,...], ...],
+    "turn": 1,
+    "winner": 0,
+    "status": "active"
+  }
+}
+```
+
+## How the Bot Works
 
 The AI uses Minimax with alpha-beta pruning:
 
-1. **Immediate Win**: Win if possible
-2. **Block**: Block opponent's winning move
-3. **Minimax Search**: Evaluate positions to depth 6
-4. **Heuristics**:
-   - Center column preference
-   - 3-in-a-row with open space: +100
-   - 2-in-a-row with open spaces: +10
+1. Check if it can win this turn → take it
+2. Check if opponent can win → block them
+3. Search 6 moves deep to find the best move
+4. Prefer center columns (stronger position)
+5. Evaluate threats and opportunities
 
-## Concurrency Safety
+Position scoring:
+- Three in a row with space: +100 points
+- Two in a row with spaces: +10 points
+- Center columns: bonus points
 
-- **Game State**: Protected by `sync.RWMutex`
-- **Client Registry**: Mutex-protected map
-- **Matchmaking Queue**: Channel-based with mutex
-- **Board Simulation**: Cloned boards for bot calculation
+## Thread Safety
 
-## Production Deployment
+All shared data is protected:
+- Game state uses `sync.RWMutex`
+- Client connections stored in locked maps
+- Matchmaking queue uses channels
+- Bot calculations work on copied boards
 
-Recommended platforms: Render, Railway, Fly.io
+## Deploy to Production
+
+Works on Render, Railway, Fly.io, and similar platforms.
 
 Example `render.yaml`:
 ```yaml
@@ -154,6 +157,20 @@ services:
           property: connectionString
 ```
 
+## Why This Project Exists
+
+Connect 4 is a simple game, but building it right is surprisingly complex. This project tackles real problems: how do you keep two players in sync across the internet? How do you handle someone's WiFi cutting out mid-game? How do you make an AI that's challenging but not frustrating?
+
+The answers involve WebSockets, careful state management, and a chess-like algorithm called Minimax. But more than that, this project is about taking something familiar and making it work flawlessly in the real world. It's production-grade code that handles edge cases, recovers from failures, and scales gracefully.
+
+Whether you're here to play, learn from the code, or build something similar, I hope this shows that even classic games can teach us something new about software architecture, concurrency, and real-time systems.
+
+Thanks for checking it out. Now go connect four. 🎮
+
 ## License
 
 MIT
+
+---
+
+**Made by Kriti Porwal**
