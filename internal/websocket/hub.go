@@ -140,12 +140,16 @@ func (h *Hub) notifyOpponentDisconnect(g *game.Game, disconnectedID string) {
 func (h *Hub) handleForfeit(g *game.Game) {
 	state := g.GetState()
 
-	// Record win for the player who stayed
+	// Record win for the player who stayed and loss for who left
 	if h.leaderboard != nil {
 		if state.Winner == game.Player1 {
 			h.leaderboard.RecordWin(g.Player1.Username)
+			if !g.Player2.IsBot {
+				h.leaderboard.RecordLoss(g.Player2.Username)
+			}
 		} else if state.Winner == game.Player2 && !g.Player2.IsBot {
 			h.leaderboard.RecordWin(g.Player2.Username)
+			h.leaderboard.RecordLoss(g.Player1.Username)
 		}
 	}
 
@@ -282,12 +286,27 @@ func (h *Hub) TriggerBotMove(g *game.Game) {
 func (h *Hub) handleGameOver(g *game.Game) {
 	state := g.GetState()
 
-	// Record winner
+	// Record game results for both players
 	if h.leaderboard != nil {
-		if state.Winner == game.Player1 {
+		switch state.Winner {
+		case game.Player1:
+			// Player 1 wins
 			h.leaderboard.RecordWin(g.Player1.Username)
-		} else if state.Winner == game.Player2 && !g.Player2.IsBot {
-			h.leaderboard.RecordWin(g.Player2.Username)
+			if !g.Player2.IsBot {
+				h.leaderboard.RecordLoss(g.Player2.Username)
+			}
+		case game.Player2:
+			// Player 2 wins
+			if !g.Player2.IsBot {
+				h.leaderboard.RecordWin(g.Player2.Username)
+			}
+			h.leaderboard.RecordLoss(g.Player1.Username)
+		case game.Draw:
+			// Draw - both players get draw
+			h.leaderboard.RecordDraw(g.Player1.Username)
+			if !g.Player2.IsBot {
+				h.leaderboard.RecordDraw(g.Player2.Username)
+			}
 		}
 	}
 
