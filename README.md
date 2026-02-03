@@ -47,18 +47,19 @@ go run ./cmd/server
 
 ## Project Structure
 Connect4/
-├── cmd/server/           # Main entry point
+├── cmd/
+│   └── server/              # Main entry point
 ├── internal/
-│   ├── game/             # Game logic and AI
-│   ├── websocket/        # WebSocket handler
-│   ├── matchmaking/      # Player queue system
-│   ├── state/            # Game state manager
-│   ├── storage/          # PostgreSQL integration
-│   ├── leaderboard/      # Stats tracking
-│   └── analytics/        # Event logging
-├── frontend/             # HTML/CSS/JS UI
-├── config/               # Server config
-└── Dockerfile            # Container build
+│   ├── game/                # Game logic and AI
+│   ├── websocket/           # WebSocket handler
+│   ├── matchmaking/         # Player queue system
+│   ├── state/               # Game state manager
+│   ├── storage/             # PostgreSQL integration
+│   ├── leaderboard/         # Stats tracking
+│   └── analytics/           # Event logging
+├── frontend/                # HTML/CSS/JS UI
+├── config/                  # Server config
+└── Dockerfile               # Container build
 
 ---
 
