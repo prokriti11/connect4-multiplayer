@@ -98,8 +98,25 @@ func (q *Queue) handleNewPlayer(newPlayer *PlayerRequest) {
 	q.mu.Lock()
 	defer q.mu.Unlock()
 
+	// First, remove any old entries for this username (prevents self-matching on refresh)
+	var cleanQueue []*PlayerRequest
+	for _, player := range q.waiting {
+		if player.Username != newPlayer.Username {
+			cleanQueue = append(cleanQueue, player)
+		} else {
+			player.cancel() // Cancel old entry
+			log.Printf("Removed old queue entry for %s", player.Username)
+		}
+	}
+	q.waiting = cleanQueue
+
 	// Try to find an opponent in the queue
 	for i, waiting := range q.waiting {
+		// Don't match with yourself
+		if waiting.ID == newPlayer.ID {
+			continue
+		}
+
 		// Check if waiting player is still valid (not timed out)
 		select {
 		case <-waiting.ctx.Done():
