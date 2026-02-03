@@ -55,6 +55,44 @@ func (s *Service) RecordWin(username string) {
 	log.Printf("Recorded win for %s (in-memory)", username)
 }
 
+// RecordLoss records a loss for a player
+func (s *Service) RecordLoss(username string) {
+	if username == "" || username == "Bot" {
+		return
+	}
+
+	// Try database first
+	if s.postgres != nil {
+		if err := s.postgres.RecordLoss(username); err != nil {
+			log.Printf("DB error recording loss: %v", err)
+		} else {
+			return
+		}
+	}
+
+	// In-memory fallback (losses not tracked in simple memory mode)
+	log.Printf("Recorded loss for %s (in-memory)", username)
+}
+
+// RecordDraw records a draw for a player
+func (s *Service) RecordDraw(username string) {
+	if username == "" || username == "Bot" {
+		return
+	}
+
+	// Try database first
+	if s.postgres != nil {
+		if err := s.postgres.RecordDraw(username); err != nil {
+			log.Printf("DB error recording draw: %v", err)
+		} else {
+			return
+		}
+	}
+
+	// In-memory fallback (draws not tracked in simple memory mode)
+	log.Printf("Recorded draw for %s (in-memory)", username)
+}
+
 // GetLeaderboard returns the top players
 func (s *Service) GetLeaderboard(limit int) []PlayerScore {
 	// Try database first
