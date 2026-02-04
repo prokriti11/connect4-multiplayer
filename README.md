@@ -239,12 +239,6 @@ Thanks for checking it out. Now go connect four. 🎮
 
 ---
 
-## License
-
-MIT
-
----
-
 **Made by Kriti Porwal**
 
 [![GitHub](https://img.shields.io/badge/GitHub-@prokriti11-181717?style=flat&logo=github)](https://github.com/prokriti11)
